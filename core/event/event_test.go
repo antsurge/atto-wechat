@@ -2,6 +2,8 @@ package event
 
 import (
 	"context"
+	"encoding/xml"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -87,6 +89,112 @@ func TestParseErrors(t *testing.T) {
 	}
 	if _, err := ParseMessage([]byte(`<xml><MsgType>`)); !errors.Is(err, errors.CodeDecodeFailed) {
 		t.Fatalf("malformed err = %v", err)
+	}
+}
+
+func TestParseJSONMessage(t *testing.T) {
+	// The courier callbacks arrive as JSON when the sender is configured that way.
+	data := `{"ToUserName":"gh_1","FromUserName":"gh_p","CreateTime":1700000000,` +
+		`"MsgType":"event","Event":"add_waybill","Token":"tok-1"}`
+
+	msg, err := ParseMessage([]byte(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if msg.MsgType != "event" || msg.Event != "add_waybill" {
+		t.Fatalf("message = %+v", msg)
+	}
+	if msg.ToUserName != "gh_1" || msg.FromUserName != "gh_p" || msg.CreateTime != 1700000000 {
+		t.Fatalf("header = %+v", msg)
+	}
+	if !msg.IsJSON() {
+		t.Fatal("IsJSON() = false")
+	}
+}
+
+type xmlReply struct {
+	XMLName    xml.Name `xml:"xml"`
+	ToUserName string   `xml:"ToUserName"`
+	ResultCode int      `xml:"ResultCode"`
+}
+
+type jsonReply struct {
+	ToUserName string `json:"ToUserName"`
+	ResultCode int    `json:"ResultCode"`
+}
+
+func TestReplyWithMatchesRequestFormat(t *testing.T) {
+	// A reply must use the format of the request, otherwise WeChat cannot read it.
+	jsonMsg, err := ParseMessage([]byte(
+		`{"ToUserName":"gh_1","FromUserName":"gh_p","MsgType":"event","Event":"get_quota"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := jsonMsg.ReplyWith(jsonReply{ToUserName: "gh_p", ResultCode: 0}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(jsonMsg.ReplyContentType, "json") {
+		t.Fatalf("Content-Type = %q", jsonMsg.ReplyContentType)
+	}
+	if !strings.Contains(string(jsonMsg.Reply), `"ToUserName":"gh_p"`) {
+		t.Fatalf("reply = %s", jsonMsg.Reply)
+	}
+
+	xmlMsg, err := ParseMessage([]byte(`<xml><MsgType>event</MsgType><Event>get_quota</Event></xml>`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := xmlMsg.ReplyWith(xmlReply{ToUserName: "gh_p", ResultCode: 0}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(xmlMsg.ReplyContentType, "xml") {
+		t.Fatalf("Content-Type = %q", xmlMsg.ReplyContentType)
+	}
+	if !strings.Contains(string(xmlMsg.Reply), "<ResultCode>0</ResultCode>") {
+		t.Fatalf("reply = %s", xmlMsg.Reply)
+	}
+}
+
+func TestReplyWithRejectsNil(t *testing.T) {
+	msg, err := ParseMessage([]byte(textXML))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := msg.ReplyWith(nil); !errors.Is(err, errors.CodeInvalidArgument) {
+		t.Fatalf("nil value err = %v", err)
+	}
+
+	var nilMsg *Message
+	if err := nilMsg.ReplyWith(jsonReply{}); !errors.Is(err, errors.CodeInvalidArgument) {
+		t.Fatalf("nil message err = %v", err)
+	}
+}
+
+func TestDispatchIgnoresEventNameCase(t *testing.T) {
+	// WeChat documents several event names as case-insensitive.
+	var calls atomic.Int32
+
+	d := NewDispatcher().On("event.add_waybill", func(_ context.Context, _ *Message) error {
+		calls.Add(1)
+
+		return nil
+	})
+
+	msg, err := ParseMessage([]byte(
+		`<xml><MsgType>event</MsgType><Event>Add_Waybill</Event></xml>`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := d.Dispatch(context.Background(), msg); err != nil {
+		t.Fatal(err)
+	}
+	if calls.Load() != 1 {
+		t.Fatalf("delivered %d messages, want 1", calls.Load())
 	}
 }
 
@@ -353,5 +461,87 @@ func TestRouteKey(t *testing.T) {
 	}
 	if routeKey(text) != "text" {
 		t.Fatalf("route = %q", routeKey(text))
+	}
+
+	headerless, err := ParseMessage([]byte(chargeXML))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if routeKey(headerless) != "event_type.3" {
+		t.Fatalf("route = %q", routeKey(headerless))
+	}
+}
+
+// chargeXML is the shape the 付费管理 alerts arrive in: business fields plus a
+// numeric event_type, with none of the usual message header.
+const chargeXML = `{"event_type":3,"appid":"wx1","spu_id":1,` +
+	`"total_quota":100,"total_used_quota":80}`
+
+func TestParseHeaderlessEvent(t *testing.T) {
+	msg, err := ParseMessage([]byte(chargeXML))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if msg.MsgType != "" {
+		t.Fatalf("MsgType = %q", msg.MsgType)
+	}
+	if msg.EventType != 3 {
+		t.Fatalf("EventType = %d", msg.EventType)
+	}
+	// IsEvent stays false: there is no Event field, so nothing may treat this as a
+	// subscription-style event.
+	if msg.IsEvent() {
+		t.Fatal("IsEvent() = true for a headerless payload")
+	}
+}
+
+func TestParseRejectsDocumentWithoutHeaderOrEventType(t *testing.T) {
+	// Only a payload that identifies itself by event_type is headerless-legal.
+	if _, err := ParseMessage([]byte(`{"appid":"wx1"}`)); err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestHeaderlessIdentityIsPerPayload(t *testing.T) {
+	// The quota alert fires at 20%, 10%, 5% and 0%. They share MsgType, Event and
+	// sender, so identity has to come from the body -- otherwise deduplication would
+	// drop three of the four warnings.
+	first, err := ParseMessage([]byte(`{"event_type":3,"spu_id":1,"total_used_quota":800}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := ParseMessage([]byte(`{"event_type":3,"spu_id":1,"total_used_quota":900}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if first.Identity() == second.Identity() {
+		t.Fatalf("identities collide: %q", first.Identity())
+	}
+	if first.Identity() == "" {
+		t.Fatal("identity is empty")
+	}
+}
+
+func TestDispatchHeaderlessEvent(t *testing.T) {
+	msg, err := ParseMessage([]byte(chargeXML))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var called bool
+
+	d := NewDispatcher().On(EventTypeRoute(3), func(_ context.Context, _ *Message) error {
+		called = true
+
+		return nil
+	})
+
+	if err := d.Dispatch(context.Background(), msg); err != nil {
+		t.Fatal(err)
+	}
+	if !called {
+		t.Fatal("handler for event_type.3 was not called")
 	}
 }

@@ -166,7 +166,7 @@ func (a *Application) CreateQRCode(
 		return nil, err
 	}
 
-	image, contentType, errResp := decodeQRCodeImageReply(resp)
+	image, contentType, errResp := decodeImageReply(resp)
 	if errResp.ErrCode != 0 {
 		return &CreateQRCodeResponse{WechatResponse: errResp, ContentType: contentType}, nil
 	}

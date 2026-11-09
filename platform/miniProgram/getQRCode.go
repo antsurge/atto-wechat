@@ -194,7 +194,7 @@ func (a *Application) GetQRCode(
 		return nil, err
 	}
 
-	image, contentType, errResp := decodeQRCodeImageReply(resp)
+	image, contentType, errResp := decodeImageReply(resp)
 	if errResp.ErrCode != 0 {
 		return &GetQRCodeResponse{WechatResponse: errResp, ContentType: contentType}, nil
 	}
@@ -202,14 +202,17 @@ func (a *Application) GetQRCode(
 	return &GetQRCodeResponse{Image: image, ContentType: contentType}, nil
 }
 
-// decodeQRCodeImageReply splits the two media types the QR code endpoints reply
-// with: image bytes on success, JSON with errcode/errmsg on failure.
+// decodeImageReply splits the two media types the image endpoints reply with:
+// image bytes on success, JSON with errcode/errmsg on failure.
+//
+// It serves the QR code endpoints and the feedback attachments alike: both
+// answer with a body that is either an image or an error document.
 //
 // A body that is neither image/* nor JSON is returned as image bytes, because
 // WeChat does not guarantee a Content-Type and a successful call must not be
 // reported as a failure. The errcode of a successful reply is zero, which is
 // how callers tell the two outcomes apart.
-func decodeQRCodeImageReply(resp *client.Response) ([]byte, string, response.WechatResponse) {
+func decodeImageReply(resp *client.Response) ([]byte, string, response.WechatResponse) {
 	contentType := resp.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "image/") {
 		return resp.Body, contentType, response.WechatResponse{}

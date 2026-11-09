@@ -146,6 +146,39 @@ func TestPlaintextMessage(t *testing.T) {
 	}
 }
 
+func TestPlaintextMessageWithReply(t *testing.T) {
+	// Some callbacks -- the courier ones -- reject "success" and expect their own
+	// document back, so a handler that sets a reply has to take over the body.
+	srv, _ := newServer(t, &Config{
+		Token: token,
+		Dispatcher: event.NewDispatcher().On("*", func(_ context.Context, msg *event.Message) error {
+			msg.Reply = []byte(`{"ResultCode":0}`)
+			msg.ReplyContentType = "application/json; charset=utf-8"
+
+			return nil
+		}),
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/callback?"+url.Values{
+		"signature": {security.SHA1Signature(token, "123", "n")},
+		"timestamp": {"123"},
+		"nonce":     {"n"},
+	}.Encode(), strings.NewReader(messageXML))
+
+	w := httptest.NewRecorder()
+	srv.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d", w.Code)
+	}
+	if got := w.Body.String(); got != `{"ResultCode":0}` {
+		t.Fatalf("body = %q, want the handler's reply", got)
+	}
+	if got := w.Header().Get("Content-Type"); got != "application/json; charset=utf-8" {
+		t.Fatalf("Content-Type = %q", got)
+	}
+}
+
 func TestPlaintextMessageRejectsBadSignature(t *testing.T) {
 	srv, _ := newServer(t, &Config{Token: token})
 

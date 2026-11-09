@@ -14,8 +14,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/antsurge/atto-wechat/core/event"
 	"github.com/antsurge/atto-wechat/core/errors"
+	"github.com/antsurge/atto-wechat/core/event"
 	"github.com/antsurge/atto-wechat/core/security"
 )
 
@@ -162,6 +162,20 @@ func (s *Server) handleMessage(w http.ResponseWriter, r *http.Request) {
 		"event", msg.Event,
 		"elapsed", time.Since(start).String(),
 	)
+
+	// A handler that answered with a structured payload takes over the reply:
+	// the courier callbacks reject "success" and expect their own document back.
+	if len(msg.Reply) > 0 {
+		contentType := msg.ReplyContentType
+		if contentType == "" {
+			contentType = "text/plain; charset=utf-8"
+		}
+
+		w.Header().Set("Content-Type", contentType)
+		_, _ = w.Write(msg.Reply)
+
+		return
+	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	_, _ = io.WriteString(w, "success")

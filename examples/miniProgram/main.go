@@ -395,4 +395,408 @@ func main() {
 	//	log.Println("deletekfaccount success")
 	//}
 
+	// ---- 直播相关：直播间管理 ----
+
+	// 创建直播间，封面/分享图/购物频道封面都是临时素材的 mediaID
+	//err = CreateLiveRoom(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("创建直播间失败 %s", err.Error())
+	//} else {
+	//	log.Println("createliveroom success")
+	//}
+
+	// 修改直播间，微信是整体替换，必填字段都要带上当前值
+	//roomID := int64(1)
+	//err = EditLiveRoom(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("修改直播间失败 %s", err.Error())
+	//} else {
+	//	log.Println("editliveroom success")
+	//}
+
+	// 分页拉取直播间列表
+	//err = GetLiveRoomList(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询直播间列表失败 %s", err.Error())
+	//} else {
+	//	log.Println("getliveroomlist success")
+	//}
+
+	// 拉取某个直播间的回放片段
+	//err = GetLiveRoomReplay(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("查询直播回放失败 %s", err.Error())
+	//} else {
+	//	log.Println("getliveroomreplay success")
+	//}
+
+	// 删除直播间
+	//err = DeleteLiveRoom(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("删除直播间失败 %s", err.Error())
+	//} else {
+	//	log.Println("deleteliveroom success")
+	//}
+
+	// 获取推流地址，只对推流开播的房间有意义
+	//err = GetLiveRoomPushURL(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("获取推流地址失败 %s", err.Error())
+	//} else {
+	//	log.Println("getliveroompushurl success")
+	//}
+
+	// 获取直播间分享码
+	//err = GetLiveRoomSharedCode(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("获取分享码失败 %s", err.Error())
+	//} else {
+	//	log.Println("getliveroomsharedcode success")
+	//}
+
+	// 查询主播副号
+	//err = GetSubAnchor(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("查询主播副号失败 %s", err.Error())
+	//} else {
+	//	log.Println("getsubanchor success")
+	//}
+
+	// 添加主播副号
+	//subAnchor := "sub_anchor_wechat"
+	//err = AddSubAnchor(ctx, app, roomID, subAnchor)
+	//if err != nil {
+	//	log.Fatalf("添加主播副号失败 %s", err.Error())
+	//} else {
+	//	log.Println("addsubanchor success")
+	//}
+
+	// 修改主播副号
+	//err = ModifySubAnchor(ctx, app, roomID, subAnchor)
+	//if err != nil {
+	//	log.Fatalf("修改主播副号失败 %s", err.Error())
+	//} else {
+	//	log.Println("modifysubanchor success")
+	//}
+
+	// 删除主播副号
+	//err = DeleteSubAnchor(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("删除主播副号失败 %s", err.Error())
+	//} else {
+	//	log.Println("deletesubanchor success")
+	//}
+
+	// 把审核通过的商品导入直播间
+	//goodsID := int64(1)
+	//err = ImportLiveRoomGoods(ctx, app, roomID, []int64{goodsID})
+	//if err != nil {
+	//	log.Fatalf("导入直播间商品失败 %s", err.Error())
+	//} else {
+	//	log.Println("addgoods success")
+	//}
+
+	// 把商品移出直播间，商品本身仍留在商品库
+	//err = DeleteLiveRoomGoods(ctx, app, roomID, goodsID)
+	//if err != nil {
+	//	log.Fatalf("删除直播间商品失败 %s", err.Error())
+	//} else {
+	//	log.Println("deleteinroom success")
+	//}
+
+	// 推送商品讲解，直播间同一时间只能有一个商品在推送中
+	//err = PushLiveRoomGoods(ctx, app, roomID, goodsID)
+	//if err != nil {
+	//	log.Fatalf("推送商品失败 %s", err.Error())
+	//} else {
+	//	log.Println("pushgoods success")
+	//}
+
+	// 商品在直播间内上下架
+	//err = SaleLiveRoomGoods(ctx, app, roomID, goodsID, true)
+	//if err != nil {
+	//	log.Fatalf("商品上下架失败 %s", err.Error())
+	//} else {
+	//	log.Println("salegoods success")
+	//}
+
+	// 调整直播间商品顺序，传的是完整顺序
+	//err = SortLiveRoomGoods(ctx, app, roomID, []int64{goodsID})
+	//if err != nil {
+	//	log.Fatalf("商品排序失败 %s", err.Error())
+	//} else {
+	//	log.Println("sortgoods success")
+	//}
+
+	// 添加直播小助手
+	//err = AddLiveRoomAssistant(ctx, app, roomID, "assistant_wechat", "小助手")
+	//if err != nil {
+	//	log.Fatalf("添加小助手失败 %s", err.Error())
+	//} else {
+	//	log.Println("addassistant success")
+	//}
+
+	// 修改小助手昵称
+	//err = ModifyLiveRoomAssistant(ctx, app, roomID, "assistant_wechat", "新昵称")
+	//if err != nil {
+	//	log.Fatalf("修改小助手失败 %s", err.Error())
+	//} else {
+	//	log.Println("modifyassistant success")
+	//}
+
+	// 查询直播间小助手列表
+	//err = GetLiveRoomAssistantList(ctx, app, roomID)
+	//if err != nil {
+	//	log.Fatalf("查询小助手失败 %s", err.Error())
+	//} else {
+	//	log.Println("getassistantlist success")
+	//}
+
+	// 移除直播小助手
+	//err = RemoveLiveRoomAssistant(ctx, app, roomID, "assistant_wechat")
+	//if err != nil {
+	//	log.Fatalf("删除小助手失败 %s", err.Error())
+	//} else {
+	//	log.Println("removeassistant success")
+	//}
+
+	// 开启/关闭直播间评论
+	//err = UpdateLiveRoomComment(ctx, app, roomID, true)
+	//if err != nil {
+	//	log.Fatalf("评论管理失败 %s", err.Error())
+	//} else {
+	//	log.Println("updatecomment success")
+	//}
+
+	// 开启/关闭官方收录
+	//err = UpdateLiveRoomFeedPublic(ctx, app, roomID, true)
+	//if err != nil {
+	//	log.Fatalf("官方收录管理失败 %s", err.Error())
+	//} else {
+	//	log.Println("updatefeedpublic success")
+	//}
+
+	// 开启/关闭客服入口，需先在管理后台配置客服
+	//err = UpdateLiveRoomKF(ctx, app, roomID, false)
+	//if err != nil {
+	//	log.Fatalf("客服功能管理失败 %s", err.Error())
+	//} else {
+	//	log.Println("updatekf success")
+	//}
+
+	// 开启/关闭回放
+	//err = UpdateLiveRoomReplay(ctx, app, roomID, false)
+	//if err != nil {
+	//	log.Fatalf("回放功能管理失败 %s", err.Error())
+	//} else {
+	//	log.Println("updatereplay success")
+	//}
+
+	// 获取商品讲解视频地址，刚推送完会返回“未生成”
+	//err = DownloadLiveGoodsVideo(ctx, app, roomID, goodsID)
+	//if err != nil {
+	//	log.Fatalf("获取讲解视频失败 %s", err.Error())
+	//} else {
+	//	log.Println("getvideo success")
+	//}
+
+	// 设置直播挂件的商品 key，账号级，一次对所有房间生效
+	//err = SetLiveGoodsKey(ctx, app, []string{"your-goods-key"})
+	//if err != nil {
+	//	log.Fatalf("设置商品 key 失败 %s", err.Error())
+	//} else {
+	//	log.Println("setkey success")
+	//}
+
+	// 读取直播挂件的商品 key
+	//err = GetLiveGoodsKey(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("获取商品 key 失败 %s", err.Error())
+	//} else {
+	//	log.Println("getkey success")
+	//}
+
+	// ---- 直播相关：商品库 ----
+
+	// 添加商品并提审
+	//err = AddLiveGoods(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("添加商品失败 %s", err.Error())
+	//} else {
+	//	log.Println("addgoods success")
+	//}
+
+	// 修改商品，已通过审核的商品只能改价格类型和价格
+	//err = UpdateLiveGoods(ctx, app, goodsID)
+	//if err != nil {
+	//	log.Fatalf("修改商品失败 %s", err.Error())
+	//} else {
+	//	log.Println("updategoods success")
+	//}
+
+	// 重新提交商品审核
+	//auditID := int64(1)
+	//err = ResubmitLiveGoodsAudit(ctx, app, goodsID)
+	//if err != nil {
+	//	log.Fatalf("重新提审失败 %s", err.Error())
+	//} else {
+	//	log.Println("resetaudit(resubmit) success")
+	//}
+
+	// 撤回商品审核，撤回后可修改再重提
+	//err = ResetLiveGoodsAudit(ctx, app, goodsID, auditID)
+	//if err != nil {
+	//	log.Fatalf("撤回审核失败 %s", err.Error())
+	//} else {
+	//	log.Println("resetaudit success")
+	//}
+
+	// 查询商品审核状态，只有审核通过的商品能导入直播间
+	//err = GetLiveGoodsAuditInfo(ctx, app, []int64{goodsID})
+	//if err != nil {
+	//	log.Fatalf("查询审核状态失败 %s", err.Error())
+	//} else {
+	//	log.Println("getgoodswarehouse success")
+	//}
+
+	// 按审核状态分页拉取商品库
+	//err = GetLiveGoodsList(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询商品列表失败 %s", err.Error())
+	//} else {
+	//	log.Println("getapproved success")
+	//}
+
+	// 删除商品，会同时从所有房间下架
+	//err = DeleteLiveGoods(ctx, app, goodsID)
+	//if err != nil {
+	//	log.Fatalf("删除商品失败 %s", err.Error())
+	//} else {
+	//	log.Println("deletegoods success")
+	//}
+
+	// ---- 直播相关：成员与长期订阅 ----
+
+	// 授予直播成员角色，主播未实名时会返回 codeurl
+	//role := miniProgram.LiveRoleAnchor
+	//err = AddLiveRole(ctx, app, "anchor_wechat", role)
+	//if err != nil {
+	//	log.Fatalf("添加成员角色失败 %s", err.Error())
+	//} else {
+	//	log.Println("addrole success")
+	//}
+
+	// 移除直播成员角色
+	//err = DeleteLiveRole(ctx, app, "anchor_wechat", role)
+	//if err != nil {
+	//	log.Fatalf("删除成员角色失败 %s", err.Error())
+	//} else {
+	//	log.Println("deleterole success")
+	//}
+
+	// 分页查询直播成员
+	//err = GetLiveRoleList(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询成员列表失败 %s", err.Error())
+	//} else {
+	//	log.Println("getrolelist success")
+	//}
+
+	// 分页拉取长期订阅用户，page_break 为空表示翻完
+	//err = GetLiveFollowers(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询长期订阅用户失败 %s", err.Error())
+	//} else {
+	//	log.Println("get_wxa_followers success")
+	//}
+
+	// 给长期订阅用户推送开播提醒，每天只能推一个房间
+	//err = PushLiveMessage(ctx, app, roomID, []string{subscribeOpenID})
+	//if err != nil {
+	//	log.Fatalf("推送开播提醒失败 %s", err.Error())
+	//} else {
+	//	log.Println("push_message success")
+	//}
+
+	// ---- 物流助手 ----
+	// 先用 ListLogisticsDelivery 拿到 delivery_id、ListLogisticsAccount 拿到 biz_id，
+	// 再用它们下单；下面几个函数用的是占位 id，换成自己的账号才能跑通。
+	//err = ListLogisticsDelivery(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("获取快递公司列表失败 %s", err.Error())
+	//}
+	//
+	//err = AddLogisticsOrder(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("生成运单失败 %s", err.Error())
+	//}
+	//
+	//err = GetLogisticsPath(ctx, app, "SF123")
+	//if err != nil {
+	//	log.Fatalf("查询运单轨迹失败 %s", err.Error())
+	//}
+
+	// ---- 物流助手（运力方使用）----
+	// 这组接口是快递公司侧的：调用由微信推来的 add_waybill 事件驱动，
+	// 报文里的 token 就是后面所有操作的凭据，下面的 token 是占位值。
+	//err = ApproveProviderAccount(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("回复商户审核结果失败 %s", err.Error())
+	//}
+	//
+	//err = UpdateProviderOrderStatus(ctx, app, "token")
+	//if err != nil {
+	//	log.Fatalf("更新订单状态失败 %s", err.Error())
+	//}
+	//
+	//err = PushProviderPath(ctx, app, "token", "SF123")
+	//if err != nil {
+	//	log.Fatalf("回传运单轨迹失败 %s", err.Error())
+	//}
+	//
+	//err = DownloadProviderBill(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("下载对账单失败 %s", err.Error())
+	//}
+
+	// ---- 事件通知（消息推送）----
+	// 事件是微信推到开发者服务器的，不是本地发起的调用：
+	// 需要在 Config 里配置 Token 或 AESKey，并把 app.Callback() 暴露到公网。
+	// 这里只演示注册四个事件处理器；要真正收报文，取消下一行的注释。
+	//EventNotify(app)
+	//
+	// 物流助手（运力方使用）的事件：和上面不同，这些推送要求运力方回一个结构化
+	// 报文（带 ResultCode），回 "success" 会被判失败。处理器要注册在起服务之前。
+	//ProviderEventNotify(app)
+	//
+	// 即时配送的事件：同一套一问一答的模型，但回复字段是小写的 resultcode /
+	// resultmsg，不能用物流助手的那套。
+	//ImmediateDeliveryEventNotify(app)
+	//
+	// 额度、重置、排障一类运维接口。
+	//OpenAPIMgnt(ctx, app)
+	//
+	// 客服子商户与微信客服绑定。
+	//KFBusiness(ctx, app)
+	//
+	// 小程序安全：内容检测与用户风险等级。
+	//SecCheckDemo(ctx, app)
+	//
+	// 用工关系：推送消息与批量解绑。
+	//LaborRelation(ctx, app)
+	//
+	// 数据分析：概况、趋势、留存、分布、画像与性能。
+	//Datacube(ctx, app)
+	//
+	// 硬件设备：设备票据、订阅消息、设备组与 license。
+	//HardwareDevice(ctx, app)
+	//
+	// 运维中心：域名、性能、日志、反馈、JS 错误与分阶段发布。
+	//Operation(ctx, app)
+	//
+	//err = EventNotifyServer(ctx, app, ":8080")
+	//if err != nil {
+	//	log.Fatalf("启动事件回调服务失败 %s", err.Error())
+	//}
+
 }

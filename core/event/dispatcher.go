@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"sync"
 	"time"
 
@@ -108,10 +109,20 @@ func (d *Dispatcher) On(key string, h Handler) *Dispatcher {
 	}
 
 	d.mu.Lock()
-	d.handlers[key] = h
+	d.handlers[routeName(key)] = h
 	d.mu.Unlock()
 
 	return d
+}
+
+// routeName normalises a route so matching ignores case.
+//
+// WeChat documents several event names as case-insensitive and is not consistent
+// about the casing it sends, so "event.Add_Waybill" and "event.add_waybill" have
+// to reach the same handler. Message types are lowercase already, which makes the
+// normalisation a no-op for them.
+func routeName(key string) string {
+	return strings.ToLower(key)
 }
 
 // Dispatch delivers msg to the handler selected for it.
@@ -166,12 +177,18 @@ func (d *Dispatcher) lookup(msg *Message) Handler {
 	defer d.mu.RUnlock()
 
 	if msg.IsEvent() && msg.Event != "" {
-		if h, ok := d.handlers[msg.MsgType+"."+msg.Event]; ok {
+		if h, ok := d.handlers[routeName(msg.MsgType+"."+msg.Event)]; ok {
 			return h
 		}
 	}
 
-	if h, ok := d.handlers[msg.MsgType]; ok {
+	if msg.MsgType == "" {
+		if h, ok := d.handlers[routeName(EventTypeRoute(msg.EventType))]; ok {
+			return h
+		}
+	}
+
+	if h, ok := d.handlers[routeName(msg.MsgType)]; ok {
 		return h
 	}
 
@@ -201,8 +218,23 @@ func (d *Dispatcher) claim(msg *Message) (bool, error) {
 // routeKey renders the route a message is dispatched under, for logging.
 func routeKey(msg *Message) string {
 	if msg.IsEvent() && msg.Event != "" {
-		return msg.MsgType + "." + msg.Event
+		return routeName(msg.MsgType + "." + msg.Event)
 	}
 
-	return msg.MsgType
+	// Headerless events are routed by their numeric marker, which is all the
+	// payload carries: "event_type.3" for the quota warning, "event_type.4" for the
+	// validity warning.
+	if msg.MsgType == "" {
+		return routeName(EventTypeRoute(msg.EventType))
+	}
+
+	return routeName(msg.MsgType)
+}
+
+// EventTypeRoute returns the route a headerless event is registered under.
+//
+// Platform packages use it instead of formatting the string themselves, so the
+// key stays in one place if its shape ever changes.
+func EventTypeRoute(eventType int) string {
+	return "event_type." + itoa(int64(eventType))
 }
