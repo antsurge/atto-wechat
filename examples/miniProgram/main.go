@@ -181,4 +181,218 @@ func main() {
 	//	log.Println("generateshortlink success")
 	//}
 
+	// ---- 消息相关：动态消息 ----
+
+	// 创建动态消息的 activity_id，私密消息才需要 openID/unionID
+	//err = CreateActivityID(ctx, app, "", "")
+	//if err != nil {
+	//	log.Fatalf("创建 activity_id 失败 %s", err.Error())
+	//} else {
+	//	log.Println("createactivityid success")
+	//}
+
+	// 修改动态消息，更新已加入人数与房间上限
+	//activityID := "XXXXXXXX"
+	//err = SetUpdatableMsg(ctx, app, activityID, "3", "10")
+	//if err != nil {
+	//	log.Fatalf("修改动态消息失败 %s", err.Error())
+	//} else {
+	//	log.Println("setupdatablemsg success")
+	//}
+
+	// 修改聊天工具动态卡片，需带上模板 id
+	//chatToolTemplateID := "XXXXXXXX"
+	//groupOpenID := "XXXXXXXX"
+	//err = SetChatToolMsg(ctx, app, activityID, chatToolTemplateID, groupOpenID)
+	//if err != nil {
+	//	log.Fatalf("修改聊天工具动态卡片失败 %s", err.Error())
+	//} else {
+	//	log.Println("setchattoolmsg success")
+	//}
+
+	// ---- 消息相关：订阅消息 ----
+
+	// 查询小程序类目，订阅消息只能从这些类目的公共模板里选
+	//err = GetCategory(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询类目失败 %s", err.Error())
+	//} else {
+	//	log.Println("getcategory success")
+	//}
+
+	// 分页拉取类目下的公共模板
+	//categoryID := int64(616)
+	//err = GetPubTemplateTitles(ctx, app, categoryID)
+	//if err != nil {
+	//	log.Fatalf("拉取公共模板失败 %s", err.Error())
+	//} else {
+	//	log.Println("getpubtemplatetitles success")
+	//}
+
+	// 查询公共模板的关键词，rule 决定发送时 data 的取值规则
+	//titleID := "99"
+	//err = GetPubTemplateKeywords(ctx, app, titleID)
+	//if err != nil {
+	//	log.Fatalf("查询模板关键词失败 %s", err.Error())
+	//} else {
+	//	log.Println("getpubtemplatekeywords success")
+	//}
+
+	// 选用公共模板，返回的 priTmplId 才是发送时用的 template_id
+	//keywordIDs := []int64{1, 2}
+	//sceneDesc := "下单成功后提醒用户取餐"
+	//err = AddMessageTemplate(ctx, app, titleID, keywordIDs, sceneDesc)
+	//if err != nil {
+	//	log.Fatalf("选用模板失败 %s", err.Error())
+	//} else {
+	//	log.Println("addmessagetemplate success")
+	//}
+
+	// 查询小程序已选用的模板
+	//err = GetMessageTemplateList(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询模板列表失败 %s", err.Error())
+	//} else {
+	//	log.Println("getmessagetemplatelist success")
+	//}
+
+	// 删除已选用的模板
+	//priTemplateID := "XXXXXXXX"
+	//err = DeleteMessageTemplate(ctx, app, priTemplateID)
+	//if err != nil {
+	//	log.Fatalf("删除模板失败 %s", err.Error())
+	//} else {
+	//	log.Println("deletemessagetemplate success")
+	//}
+
+	// 发送订阅消息，一次性订阅的授权只能成功发送一条
+	//subscribeOpenID := "oKGug4tqqGYFCB46wZLoMBC5XN9Q"
+	//err = SendSubscribeMessage(ctx, app, subscribeOpenID, priTemplateID, "黄焖鸡", "2026年11月9日")
+	//if err != nil {
+	//	log.Fatalf("发送订阅消息失败 %s", err.Error())
+	//} else {
+	//	log.Println("sendsubscribemessage success")
+	//}
+
+	// 激活或更新服务卡片，仅电商类目可用
+	//notifyCode := "XXXXXXXX"
+	//contentJSON := `{"character_string1":{"value":"20261109001"}}`
+	//err = SetUserNotify(ctx, app, subscribeOpenID, notifyCode, contentJSON)
+	//if err != nil {
+	//	log.Fatalf("更新服务卡片失败 %s", err.Error())
+	//} else {
+	//	log.Println("setusernotify success")
+	//}
+
+	// 更新服务卡片的扩展信息
+	//extJSON := `{"shipping_list":[]}`
+	//err = SetUserNotifyExt(ctx, app, subscribeOpenID, notifyCode, extJSON)
+	//if err != nil {
+	//	log.Fatalf("更新服务卡片扩展信息失败 %s", err.Error())
+	//} else {
+	//	log.Println("setusernotifyext success")
+	//}
+
+	// 查询服务卡片状态
+	//err = GetUserNotify(ctx, app, subscribeOpenID, notifyCode)
+	//if err != nil {
+	//	log.Fatalf("查询服务卡片状态失败 %s", err.Error())
+	//} else {
+	//	log.Println("getusernotify success")
+	//}
+
+	// ---- 消息相关：客服消息 ----
+
+	// 在客服会话里回复文本，受用户最后一条消息后的 48 小时窗口限制
+	//err = SendCustomTextMessage(ctx, app, subscribeOpenID, "您好，请问有什么可以帮您？")
+	//if err != nil {
+	//	log.Fatalf("发送客服文本消息失败 %s", err.Error())
+	//} else {
+	//	log.Println("sendcustommessage(text) success")
+	//}
+
+	// 上传临时素材，返回的 media_id 可用于发送图片，有效期 3 天
+	//imageData, _ := os.ReadFile("cover.png")
+	//err = UploadTempMedia(ctx, app, "cover.png", imageData)
+	//if err != nil {
+	//	log.Fatalf("上传临时素材失败 %s", err.Error())
+	//} else {
+	//	log.Println("uploadtempmedia success")
+	//}
+
+	// 在客服会话里回复图片，mediaID 来自上传临时素材
+	//mediaID := "XXXXXXXX"
+	//err = SendCustomImageMessage(ctx, app, subscribeOpenID, mediaID)
+	//if err != nil {
+	//	log.Fatalf("发送客服图片消息失败 %s", err.Error())
+	//} else {
+	//	log.Println("sendcustommessage(image) success")
+	//}
+
+	// 显示“正在输入”，30 秒后自动消失
+	//err = SetTyping(ctx, app, subscribeOpenID)
+	//if err != nil {
+	//	log.Fatalf("设置客服输入状态失败 %s", err.Error())
+	//} else {
+	//	log.Println("settyping success")
+	//}
+
+	// 下载客服消息里的临时素材
+	//err = GetTempMedia(ctx, app, mediaID)
+	//if err != nil {
+	//	log.Fatalf("下载临时素材失败 %s", err.Error())
+	//} else {
+	//	log.Println("gettempmedia success")
+	//}
+
+	// 把微信号绑定为客服账号
+	//kfWx := "kf_wx"
+	//err = AddKFAccount(ctx, app, kfWx)
+	//if err != nil {
+	//	log.Fatalf("添加客服账号失败 %s", err.Error())
+	//} else {
+	//	log.Println("addkfaccount success")
+	//}
+
+	// 查询全部客服账号，返回的 kf_openid 用于删除与管理员设置
+	//err = GetKFList(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询客服账号失败 %s", err.Error())
+	//} else {
+	//	log.Println("getkflist success")
+	//}
+
+	// 查询在线客服账号
+	//err = GetOnlineKFList(ctx, app)
+	//if err != nil {
+	//	log.Fatalf("查询在线客服失败 %s", err.Error())
+	//} else {
+	//	log.Println("getonlinekflist success")
+	//}
+
+	// 设置客服管理员
+	//kfOpenID := "XXXXXXXX"
+	//err = SetKFAdmin(ctx, app, kfOpenID)
+	//if err != nil {
+	//	log.Fatalf("设置客服管理员失败 %s", err.Error())
+	//} else {
+	//	log.Println("setkfadmin success")
+	//}
+
+	// 取消客服管理员
+	//err = CancelKFAdmin(ctx, app, kfOpenID)
+	//if err != nil {
+	//	log.Fatalf("取消客服管理员失败 %s", err.Error())
+	//} else {
+	//	log.Println("cancelkfadmin success")
+	//}
+
+	// 解绑客服账号
+	//err = DeleteKFAccount(ctx, app, kfOpenID)
+	//if err != nil {
+	//	log.Fatalf("删除客服账号失败 %s", err.Error())
+	//} else {
+	//	log.Println("deletekfaccount success")
+	//}
+
 }

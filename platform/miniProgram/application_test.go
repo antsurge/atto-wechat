@@ -78,6 +78,46 @@ type fakeWechat struct {
 	lastQueryURLLinkBody    []byte
 	lastShortLinkQuery      url.Values
 	lastShortLinkBody       []byte
+
+	// The message endpoints share one recorder instead of a field each: they are
+	// keyed by request path, which keeps both the fake and the assertions short.
+	messageReplies      map[string]string
+	messageContentTypes map[string]string
+	messageBodies       map[string][]byte
+	lastMessageQuery    map[string]url.Values
+	lastMessageBody     map[string][]byte
+	lastMessageMethod   map[string]string
+}
+
+// recordMessage stores the request of a message endpoint, keyed by its path.
+func (f *fakeWechat) recordMessage(r *http.Request) {
+	if f.lastMessageQuery == nil {
+		f.lastMessageQuery = make(map[string]url.Values)
+	}
+	if f.lastMessageBody == nil {
+		f.lastMessageBody = make(map[string][]byte)
+	}
+	if f.lastMessageMethod == nil {
+		f.lastMessageMethod = make(map[string]string)
+	}
+
+	f.lastAPIToken = r.URL.Query().Get("access_token")
+	f.lastMessageQuery[r.URL.Path] = r.URL.Query()
+	f.lastMessageMethod[r.URL.Path] = r.Method
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return
+	}
+
+	f.lastMessageBody[r.URL.Path] = body
+}
+
+// messageReply returns the canned reply of a message endpoint.
+func (f *fakeWechat) messageReply(path string) (string, bool) {
+	reply, ok := f.messageReplies[path]
+
+	return reply, ok
 }
 
 func newFakeServer(f *fakeWechat) *httptest.Server {
@@ -169,6 +209,94 @@ func newFakeServer(f *fakeWechat) *httptest.Server {
 			f.lastShortLinkQuery = r.URL.Query()
 			f.lastShortLinkBody, _ = io.ReadAll(r.Body)
 			_, _ = io.WriteString(w, f.generateShortLink)
+		case createActivityIDPath,
+			setUpdatableMsgPath,
+			setChatToolMsgPath,
+			deleteMessageTemplatePath,
+			getCategoryPath,
+			getPubTemplateKeywordsPath,
+			getPubTemplateTitlesPath,
+			getMessageTemplateListPath,
+			addMessageTemplatePath,
+			sendSubscribeMessagePath,
+			setUserNotifyPath,
+			setUserNotifyExtPath,
+			getUserNotifyPath,
+			sendCustomMessagePath,
+			setTypingPath,
+			addKFAccountPath,
+			getKFListPath,
+			getOnlineKFListPath,
+			deleteKFAccountPath,
+			setKFAdminPath,
+			cancelKFAdminPath,
+			uploadTempMediaPath,
+			getTempMediaPath,
+			createLiveRoomPath,
+			editLiveRoomPath,
+			getLiveRoomListPath,
+			deleteLiveRoomPath,
+			getLiveRoomPushURLPath,
+			getLiveRoomSharedCodePath,
+			getSubAnchorPath,
+			addSubAnchorPath,
+			modifySubAnchorPath,
+			deleteSubAnchorPath,
+			importLiveRoomGoodsPath,
+			deleteLiveRoomGoodsPath,
+			pushLiveRoomGoodsPath,
+			saleLiveRoomGoodsPath,
+			sortLiveRoomGoodsPath,
+			addLiveRoomAssistantPath,
+			modifyLiveRoomAssistantPath,
+			getLiveRoomAssistantListPath,
+			removeLiveRoomAssistantPath,
+			updateLiveRoomCommentPath,
+			updateLiveRoomFeedPublicPath,
+			updateLiveRoomKFPath,
+			updateLiveRoomReplayPath,
+			setLiveGoodsKeyPath,
+			getLiveGoodsKeyPath,
+			downloadLiveGoodsVideoPath,
+			addLiveGoodsPath,
+			updateLiveGoodsPath,
+			resubmitLiveGoodsAuditPath,
+			resetLiveGoodsAuditPath,
+			getLiveGoodsAuditInfoPath,
+			getLiveGoodsListPath,
+			deleteLiveGoodsPath,
+			addLiveRolePath,
+			deleteLiveRolePath,
+			getLiveRoleListPath,
+			pushLiveMessagePath,
+			getLiveFollowersPath:
+			f.recordMessage(r)
+
+			// getTempMedia answers with the file itself on success, so the
+			// canned reply is only used when the test sets one, which is how a
+			// JSON error is simulated.
+			if r.URL.Path == getTempMediaPath {
+				if reply, ok := f.messageReply(getTempMediaPath); ok {
+					_, _ = io.WriteString(w, reply)
+					return
+				}
+
+				contentType := "application/octet-stream"
+				if f.messageContentTypes != nil && f.messageContentTypes[getTempMediaPath] != "" {
+					contentType = f.messageContentTypes[getTempMediaPath]
+				}
+
+				w.Header().Set("Content-Type", contentType)
+				_, _ = w.Write(f.messageBodies[getTempMediaPath])
+
+				return
+			}
+
+			reply, ok := f.messageReply(r.URL.Path)
+			if !ok {
+				reply = `{"errcode":0}`
+			}
+			_, _ = io.WriteString(w, reply)
 		default:
 			f.lastAPIToken = r.URL.Query().Get("access_token")
 			_, _ = io.WriteString(w, `{"errcode":0}`)
